@@ -4,23 +4,29 @@ import okhttp3.*;
 
 public class TelegramService {
 
-    private static final String BOT_TOKEN = "7994361141:AAE4xRTCNj6mQJHqhU8lEkAwmA03h_711OU";
-    private static final String CHAT_ID = "1036633702";
+    private static final String BOT_TOKEN = System.getenv("BOT_TOKEN");
+    private static final String TELEGRAM_SEND =
+            "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage";
 
-    public static void sendMessage(String message) throws Exception {
+    private static final OkHttpClient client = new OkHttpClient();
 
-        OkHttpClient client = new OkHttpClient();
+    public static void sendMessage(String chatId, String text, boolean markdown) {
 
         RequestBody body = new FormBody.Builder()
-                .add("chat_id", CHAT_ID)
-                .add("text", message)
+                .add("chat_id", chatId)
+                .add("text", text)
+                .add("parse_mode", markdown ? "Markdown" : "")
                 .build();
 
         Request request = new Request.Builder()
-                .url("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage")
+                .url(TELEGRAM_SEND)
                 .post(body)
                 .build();
 
-        client.newCall(request).execute();
+        try {
+            client.newCall(request).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
